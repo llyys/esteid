@@ -44,4 +44,10 @@ public class IdCardEvent extends Component.Event {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    public boolean onError(String errorCode, String errorMessage) {
+
+        setEventType(IdCardComponent.IdCardEventType.ON_ERROR);
+        return false;
+    }
 }

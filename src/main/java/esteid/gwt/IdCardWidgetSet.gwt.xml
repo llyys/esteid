@@ -25,9 +25,7 @@
      for webkit based browsers including Google Chrome.
     -->
   	<!-- <set-property name="user.agent" value="gecko1_8"/> -->
-    
+
 
     <inherits name="esteid.gwt.IdCardWidgetSet" />
-
-    <inherits name="esteid.gwt.MyWidgetSet" />
 </module>

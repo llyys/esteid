@@ -1,5 +1,6 @@
 package esteid.gwt.client;
 
+import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.user.client.Element;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
@@ -11,6 +12,7 @@ public class VIdCardComponent extends Widget implements Paintable {
 
     /** Set the CSS class name to allow styling. */
     public static final String CLASSNAME = "v-mycomponent";
+    private final com.google.gwt.dom.client.Element element;
 
     /** The client side widget identifier */
     protected String paintableId;
@@ -25,7 +27,10 @@ public class VIdCardComponent extends Widget implements Paintable {
     public VIdCardComponent() {
         // TODO Example code is extending GWT Widget so it must set a root element.
         // Change to proper element or remove if extending another widget
-        setElement(Document.get().createDivElement());
+        element = Document.get().createDivElement();
+        element.setId("pluginLocation");
+        element.setInnerHTML("Id kaardi plugina initsialiseerimine.");
+        setElement(element);
         
         // This method call of the Paintable interface sets the component
         // style name in DOM tree
@@ -51,34 +56,25 @@ public class VIdCardComponent extends Widget implements Paintable {
         // Save the client side identifier (paintable id) for the widget
         paintableId = uidl.getId();
 
-        Element element = getElement();
-        element.setInnerHTML("Id kaardi plugin  ");
         if(uidl.getBooleanAttribute("loadPlugin"))
         {
-           element.setInnerHTML("Initsialiseerin id kaardi pluginat");
            loadPlugin(this);
         }
-        if(uidl.getBooleanAttribute("getCert"))
+        if(uidl.getBooleanAttribute("loadCert"))
         {
-            element.setInnerHTML("Id kaardilt andmete lugemine");
-            getCert(this);
+            loadCert(this);
         }
         if(uidl.getBooleanAttribute("doSign"))
         {
-            element.setInnerHTML("Id kaardiga allkirjastamine");
             String signCertId=uidl.getStringAttribute("signCertId");
             String hashHex=uidl.getStringAttribute("hashHex");
-
             doSign(this, signCertId, hashHex);
         }
-        // TODO replace dummy code with actual component logic
-
-        
     }
 
     public void onCert(String certHex, String certId){
 
-        client.updateVariable(paintableId, "onGetCert", new String[]{certHex, certId}, true);
+        client.updateVariable(paintableId, "onCert", new String[]{certHex, certId}, true);
     }
 
     public void onError(String msg) {
@@ -88,6 +84,11 @@ public class VIdCardComponent extends Widget implements Paintable {
     public void onCardInserted() {
         client.updateVariable(paintableId, "onCardInserted", "", true);
     }
+
+    public void onPluginReady(String version) {
+        client.updateVariable(paintableId, "onPluginReady", version, true);
+    }
+
     public void onCardRemoved() {
         client.updateVariable(paintableId, "onCardRemoved", "", true);
     }
@@ -99,6 +100,7 @@ public class VIdCardComponent extends Widget implements Paintable {
     public native void loadPlugin (VIdCardComponent component) /*-{
 		try
         {
+            debugger;
             $wnd.pluginHandler=$wnd.loadSigningPlugin('est', {
                 onError:function(message){
                     component.@esteid.gwt.client.VIdCardComponent::onError(Ljava/lang/String;) (message);
@@ -108,6 +110,9 @@ public class VIdCardComponent extends Widget implements Paintable {
 				},
 				onCardRemoved: function() {
 					component.@esteid.gwt.client.VIdCardComponent::onCardRemoved() ();
+				},
+				onPluginReady: function(version){
+				    component.@esteid.gwt.client.VIdCardComponent::onPluginReady(Ljava/lang/String;) (version);
 				},
             });
         }
@@ -121,11 +126,12 @@ public class VIdCardComponent extends Widget implements Paintable {
         }
 	}-*/;
 
-    public native void getCert(VIdCardComponent component) /*-{
+    public native void loadCert(VIdCardComponent component) /*-{
 		try
         {
+            debugger;
             var selectedCertificate = $wnd.pluginHandler.getCertificate();
-            component.@esteid.gwt.client.VIdCardComponent::onCert(Ljava/lang/String;Ljava/lang/String;) (bin2hex(selectedCertificate.cert), selectedCertificate.id);
+            component.@esteid.gwt.client.VIdCardComponent::onCert(Ljava/lang/String;Ljava/lang/String;) (selectedCertificate.certHex, selectedCertificate.id);
         }
         catch (ex)
         {
@@ -140,6 +146,7 @@ public class VIdCardComponent extends Widget implements Paintable {
     public native void doSign(VIdCardComponent component, String signCertId, String hashHex)/*-{
 		try
         {
+            debugger;
             var signValueHex = $wnd.pluginHandler.sign(signCertId, hashHex);
             component.@esteid.gwt.client.VIdCardComponent::onSigningCompleted(Ljava/lang/String;) (signValueHex);
         }

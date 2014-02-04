@@ -218,7 +218,7 @@ function loadSigningPlugin(lang, events, pluginToLoad){
 			{
 				throw new IdCardException(100, dictionary[100][lang]);
 			}
-			
+
 			loadedPlugin = pluginToLoad;
 		}
 		else // Plugina nimi on tundmatu
@@ -247,7 +247,7 @@ function loadSigningPlugin(lang, events, pluginToLoad){
 			if (checkIfPluginIsLoaded("digidocPlugin", lang))
 			{
 				loadedPlugin = "digidocPlugin";
-				return;
+				return IdCardPluginHandler(lang, events, loadedPlugin);
 			}
 			//else: uue plugina laadimine ebaõnnestus, proovime laadida midagi altpoolt
 		}
@@ -265,7 +265,7 @@ function loadSigningPlugin(lang, events, pluginToLoad){
 				if (checkIfPluginIsLoaded("activeX", lang))
 				{
 					loadedPlugin = "activeX";	//not specified, either activeX_new or activeX_old (will be clear during getCertificates())
-					return;
+					return IdCardPluginHandler(lang, events, loadedPlugin);
 				}
 			}
 			else if (navigator.userAgent.indexOf("Firefox") != -1) {
@@ -280,7 +280,8 @@ function loadSigningPlugin(lang, events, pluginToLoad){
 				if (checkIfPluginIsLoaded("winMozPlugin", lang))
 				{
 					loadedPlugin = "winMozPlugin";
-					return;
+					return IdCardPluginHandler(lang, events, loadedPlugin);
+
 				}
 			}
 		}
@@ -293,7 +294,8 @@ function loadSigningPlugin(lang, events, pluginToLoad){
 				if (checkIfPluginIsLoaded("macPlugin", lang))
 				{
 					loadedPlugin = "macPlugin";
-					return;
+					return IdCardPluginHandler(lang, events, loadedPlugin);
+
 				}
 			}
 		}
@@ -544,11 +546,19 @@ function oldGenericAPIPluginHandler(lang){
 	}
 }
 
-function IdCardPluginHandler(lang)
+function IdCardPluginHandler(lang, e, loadedPlugin)
 {
+debugger;
 	var plugin = document.getElementById('IdCardSigning');
-	var pluginHandler = null;
 	var response = null;
+	var pluginType=loadedPlugin;
+
+	var onError = e.onError || function(message){};
+
+  var onCardInserted = e.onCardInserted || function(cert) {};
+  var onCardRemoved = e.onCardRemoved || function() {};
+  var onPluginReady = e.onPluginReady || function(ver){};
+
 
 	if (!lang || lang == undefined)
 	{
@@ -556,11 +566,11 @@ function IdCardPluginHandler(lang)
 	}
 
 	this.choosePluginHandler = function () {
-		if (loadedPlugin == "digidocPlugin")
+		if (this.pluginType == "digidocPlugin")
 		{
 			return new digidocPluginHandler(lang);
 		}
-		else if (loadedPlugin == "activeX")
+		else if (this.pluginType == "activeX")
 		{					
 			return new ActiveXAPIPluginHandler(lang);		
 		} else {
@@ -569,22 +579,21 @@ function IdCardPluginHandler(lang)
 	}
 
 	this.getCertificate = function () {
-
-		pluginHandler = this.choosePluginHandler();
-		return pluginHandler.getCertificate();	
+		var cert=this.pluginHandler.getCertificate();
+		cert.certHex = bin2hex(cert.cert);
+		return cert;
 	}
 
 	this.sign = function (id, hash) {
-
-		pluginHandler = this.choosePluginHandler();
-		return pluginHandler.sign(id, hash);
+		return this.pluginHandler.sign(id, hash);
 	}
 
 	this.getVersion = function () {
-
-		pluginHandler = this.choosePluginHandler();
-		return pluginHandler.getVersion();
+		return this.pluginHandler.getVersion();
 	}
+	this.pluginHandler = this.choosePluginHandler();
+	onPluginReady(this.getVersion());
+
 
 }
 

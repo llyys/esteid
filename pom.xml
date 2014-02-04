@@ -108,6 +108,7 @@
         <executions>
           <execution>
             <configuration>
+                <style>DETAILED</style>
               <!-- if you don't specify any modules, the plugin will find them -->
               <!-- <modules> <module>esteid.gwt.MyWidgetSet</module> </modules> -->
             </configuration>
@@ -140,6 +141,22 @@
           </webAppConfig>
         </configuration>
       </plugin>
+
+        <plugin>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+                <webXml>src/main/webapp/WEB-INF/web.xml</webXml>
+                <warName>EidTestApp</warName>
+                <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                <!-- <packagingExcludes>WEB-INF/lib/processbase*.jar</packagingExcludes>-->
+                <packagingIncludes>**/*.xml,**/*.properties,**/*.class,VAADIN/**,META-INF/**,scripts/**,WEB-INF/lib/*.jar</packagingIncludes>
+                <!--<outputDirectory>${liferay.deploy.path}</outputDirectory> <packagingIncludes>web/WEB-INF/liferay-display.xml,web/WEB-INF/portlet.xml</packagingIncludes>
+                    Our app has vaadin servlets configured in resources/WEB-INF/web.xml Maven
+                    utters a warning because of it. This configuration should shut it up! FIXME:
+                    Verify that this is a right way to do it. Maybe we should use gwt:mergewebxml?
+                    <packagingExcludes>WEB-INF/web.xml</packagingExcludes> -->
+            </configuration>
+        </plugin>
     </plugins>
 
     <!-- This is needed for the sources required by the GWT compiler to be included in the produced JARs -->
