@@ -19,6 +19,7 @@ public class IdCardComponent extends AbstractComponent {
     private String signCertId;
     private String certHex;
     private String hashHex;
+    private String signatureHex;
     private String error;
     private static final long serialVersionUID = 1501433173868836522L;
     private IdCardComponentListener eventListener;
@@ -89,6 +90,7 @@ public class IdCardComponent extends AbstractComponent {
             }
             if(variables.containsKey("onSigningCompleted")){
                 event.setEventType(IdCardEventType.SIGN_SUCCESS);
+                signatureHex= (String) variables.get("onSigningCompleted");
             }
             if(variables.containsKey("onCardInserted")){
                 event.setEventType(IdCardEventType.CARD_INSERTED);
@@ -130,6 +132,10 @@ public class IdCardComponent extends AbstractComponent {
 
     public String getCertId() {
         return signCertId;
+    }
+
+    public String getSignatureHex() {
+        return signatureHex;
     }
 
     public interface IdCardComponentListener{
