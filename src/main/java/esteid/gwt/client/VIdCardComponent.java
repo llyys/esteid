@@ -100,7 +100,6 @@ public class VIdCardComponent extends Widget implements Paintable {
     public native void loadPlugin (VIdCardComponent component) /*-{
 		try
         {
-            debugger;
             $wnd.pluginHandler=$wnd.loadSigningPlugin('est', {
                 onError:function(message){
                     component.@esteid.gwt.client.VIdCardComponent::onError(Ljava/lang/String;) (message);
@@ -146,7 +145,20 @@ public class VIdCardComponent extends Widget implements Paintable {
     public native void doSign(VIdCardComponent component, String signCertId, String hashHex)/*-{
 		try
         {
-            debugger;
+            $wnd.pluginHandler=$wnd.loadSigningPlugin('est', {
+                onError:function(message){
+                    component.@esteid.gwt.client.VIdCardComponent::onError(Ljava/lang/String;) (message);
+                },
+                onCardInserted: function(cert) {
+					component.@esteid.gwt.client.VIdCardComponent::onCardInserted() ();
+				},
+				onCardRemoved: function() {
+					component.@esteid.gwt.client.VIdCardComponent::onCardRemoved() ();
+				},
+				onPluginReady: function(version){
+				    component.@esteid.gwt.client.VIdCardComponent::onPluginReady(Ljava/lang/String;) (version);
+				},
+            });
             var signValueHex = $wnd.pluginHandler.sign(signCertId, hashHex);
             component.@esteid.gwt.client.VIdCardComponent::onSigningCompleted(Ljava/lang/String;) (signValueHex);
         }

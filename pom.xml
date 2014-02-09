@@ -5,7 +5,7 @@
   <groupId>esteid</groupId>
   <artifactId>esteid</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.1</version>
   <name>IdCard Widget</name>
 
   <properties>
@@ -162,6 +162,7 @@
                     <packagingExcludes>WEB-INF/web.xml</packagingExcludes> -->
             </configuration>
         </plugin>
+
     </plugins>
 
     <!-- This is needed for the sources required by the GWT compiler to be included in the produced JARs -->

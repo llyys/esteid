@@ -581,7 +581,7 @@ function IdCardPluginHandler(lang, e, loadedPlugin)
 
     getCertificate : function () {
       var cert=this.choosePluginHandler().getCertificate();
-      cert.certHex = bin2hex(cert.cert);
+      cert.certHex = cert.cert;
       return cert;
     },
 
