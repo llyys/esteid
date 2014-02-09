@@ -105,10 +105,15 @@
         <groupId>com.vaadin</groupId>
         <artifactId>vaadin-maven-plugin</artifactId>
         <version>1.0.2</version>
+          <configuration>
+              <strict>true</strict>
+              <force>true</force>
+              <!-- Enable during development to speed compiling. -->
+              <style>DETAILED</style>
+          </configuration>
         <executions>
           <execution>
             <configuration>
-                <style>DETAILED</style>
               <!-- if you don't specify any modules, the plugin will find them -->
               <!-- <modules> <module>esteid.gwt.MyWidgetSet</module> </modules> -->
             </configuration>

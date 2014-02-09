@@ -23,6 +23,7 @@ public class IdCardComponent extends AbstractComponent {
     private static final long serialVersionUID = 1501433173868836522L;
     private IdCardComponentListener eventListener;
 
+
     @Override
     public void paintContent(PaintTarget target) throws PaintException {
         super.paintContent(target);
@@ -30,7 +31,7 @@ public class IdCardComponent extends AbstractComponent {
         // TODO Paint any component specific content by setting attributes
         // These attributes can be read in updateFromUIDL in the widget.
         target.addAttribute(action, true);
-        if(action=="sign" && this.hashHex!=null)
+        if(action=="doSign" && this.hashHex!=null)
         {
             target.addAttribute("signCertId", this.signCertId);
             target.addAttribute("hashHex", this.hashHex);
@@ -113,7 +114,7 @@ public class IdCardComponent extends AbstractComponent {
     {
         this.signCertId = signCertId;
         this.hashHex = hashHex;
-        action="sign";
+        action="doSign";
         requestRepaint();
     }
 
@@ -125,6 +126,10 @@ public class IdCardComponent extends AbstractComponent {
     public void loadCert() {
         action="loadCert";
         requestRepaint();
+    }
+
+    public String getCertId() {
+        return signCertId;
     }
 
     public interface IdCardComponentListener{

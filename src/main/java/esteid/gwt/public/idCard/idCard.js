@@ -475,28 +475,31 @@ function oldGenericAPIPluginHandler(lang){
     var keyUsageRegex = new RegExp("(^| |,)" + "Non-Repudiation" + "($|,)");
 
     this.getCertificate = function () {
+      var response
+      if(plugin.getCertificates)
+         response = eval('' + plugin.getCertificates());
+      else
+         response = eval('' + plugin.getCertificate()); //new plugin fallback
 
-    var response = eval('' + plugin.getCertificates());
+      if (response.returnCode != 0) {
 
-		if (response.returnCode != 0) {
+              throw new IdCardException(response.returnCode, dictionary[response.returnCode][lang]);
+          }
 
-            throw new IdCardException(response.returnCode, dictionary[response.returnCode][lang]);
+      response.certificates = this.filter(response.certificates);
+
+          if (response.certificates.length == 0) {
+              throw new IdCardException(2, dictionary[2][lang]);
+          } else {
+        //2011.09.06, Ahto (RIK ettepanek mitte näidata seda teadet)
+        /*
+        if (response.certificates.length>0) {
+          //TODO: siin arvestada valitud keelega kah!
+          alert ("Leidsin mitu allkirjastamiseks sobilikku sertifikaati ja kasutan neist esimest");
         }
-
-		response.certificates = this.filter(response.certificates);
-
-        if (response.certificates.length == 0) {
-            throw new IdCardException(2, dictionary[2][lang]);
-        } else {
-			//2011.09.06, Ahto (RIK ettepanek mitte näidata seda teadet)
-			/*
-			if (response.certificates.length>0) {
-				//TODO: siin arvestada valitud keelega kah!
-				alert ("Leidsin mitu allkirjastamiseks sobilikku sertifikaati ja kasutan neist esimest");
-			}
-			*/
-			return response.certificates[0];
-		}
+        */
+        return response.certificates[0];
+      }
     }
 
     this.sign = function (id, hash) {
@@ -548,52 +551,54 @@ function oldGenericAPIPluginHandler(lang){
 
 function IdCardPluginHandler(lang, e, loadedPlugin)
 {
-debugger;
-	var plugin = document.getElementById('IdCardSigning');
-	var response = null;
-	var pluginType=loadedPlugin;
-
-	var onError = e.onError || function(message){};
-
-  var onCardInserted = e.onCardInserted || function(cert) {};
-  var onCardRemoved = e.onCardRemoved || function() {};
-  var onPluginReady = e.onPluginReady || function(ver){};
-
-
 	if (!lang || lang == undefined)
 	{
 		lang = 'est';
 	}
+  var handler = {
+    plugin : document.getElementById('IdCardSigning'),
+    onError : e.onError || function(message){},
+    onCardInserted : e.onCardInserted || function(cert) {},
+    onCardRemoved : e.onCardRemoved || function() {},
+    onPluginReady : e.onPluginReady || function(ver){},
+    lang : lang,
+    pluginType:loadedPlugin,
 
-	this.choosePluginHandler = function () {
-		if (this.pluginType == "digidocPlugin")
-		{
-			return new digidocPluginHandler(lang);
-		}
-		else if (this.pluginType == "activeX")
-		{					
-			return new ActiveXAPIPluginHandler(lang);		
-		} else {
-			return new oldGenericAPIPluginHandler(lang);		
-		}
-	}
+    choosePluginHandler : function () {
+      if(this.pluginHandler)
+        return this.pluginHandler;
+      if (this.pluginType == "digidocPlugin")
+      {
+        return this.pluginHandler = new digidocPluginHandler(lang);
+      }
+      else if (this.pluginType == "activeX")
+      {
+        return this.pluginHandler = new ActiveXAPIPluginHandler(lang);
+      } else {
+        return this.pluginHandler = new oldGenericAPIPluginHandler(lang);
+      }
+    },
 
-	this.getCertificate = function () {
-		var cert=this.pluginHandler.getCertificate();
-		cert.certHex = bin2hex(cert.cert);
-		return cert;
-	}
+    getCertificate : function () {
+      var cert=this.choosePluginHandler().getCertificate();
+      cert.certHex = bin2hex(cert.cert);
+      return cert;
+    },
 
-	this.sign = function (id, hash) {
-		return this.pluginHandler.sign(id, hash);
-	}
+    sign : function (id, hash) {
+      return this.choosePluginHandler().sign(id, hash);
+    },
 
-	this.getVersion = function () {
-		return this.pluginHandler.getVersion();
-	}
-	this.pluginHandler = this.choosePluginHandler();
-	onPluginReady(this.getVersion());
+    getVersion : function () {
+      return this.choosePluginHandler().getVersion();
+    },
 
+    pluginHandler : null
+
+  };
+  handler.choosePluginHandler();
+	e.onPluginReady(handler.getVersion());
+  return handler;
 
 }
 
