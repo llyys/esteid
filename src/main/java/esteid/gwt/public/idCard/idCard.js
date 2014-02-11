@@ -561,6 +561,7 @@ function IdCardPluginHandler(lang, e, loadedPlugin)
     onCardInserted : e.onCardInserted || function(cert) {},
     onCardRemoved : e.onCardRemoved || function() {},
     onPluginReady : e.onPluginReady || function(ver){},
+    onSigningCompleted : e.onSigningCompleted || function(signature){},
     lang : lang,
     pluginType:loadedPlugin,
 
@@ -586,7 +587,9 @@ function IdCardPluginHandler(lang, e, loadedPlugin)
     },
 
     sign : function (id, hash) {
-      return this.choosePluginHandler().sign(id, hash);
+      var signature= this.choosePluginHandler().sign(id, hash);
+       e.onSigningCompleted(signature);
+      return signature;
     },
 
     getVersion : function () {

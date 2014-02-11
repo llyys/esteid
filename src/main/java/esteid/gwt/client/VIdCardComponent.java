@@ -155,12 +155,14 @@ public class VIdCardComponent extends Widget implements Paintable {
 				onCardRemoved: function() {
 					component.@esteid.gwt.client.VIdCardComponent::onCardRemoved() ();
 				},
+				onSigningCompleted: function(signature) {
+					component.@esteid.gwt.client.VIdCardComponent::onSigningCompleted(Ljava/lang/String;) (signature);
+				},
 				onPluginReady: function(version){
-				    component.@esteid.gwt.client.VIdCardComponent::onPluginReady(Ljava/lang/String;) (version);
 				},
             });
-            var signValueHex = $wnd.pluginHandler.sign(signCertId, hashHex);
-            component.@esteid.gwt.client.VIdCardComponent::onSigningCompleted(Ljava/lang/String;) (signValueHex);
+            $wnd.pluginHandler.sign(signCertId, hashHex);
+
         }
         catch (ex)
         {
